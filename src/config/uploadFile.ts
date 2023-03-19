@@ -9,6 +9,7 @@ interface IUploadConfig {
 
   tmpFolder: string;
   uploadsFolder: string;
+  uploadsProfilePhotoFolder: string;
 
   multer: {
     storage: StorageEngine;
@@ -24,6 +25,7 @@ export const uploadConfig = {
 
   tmpFolder,
   uploadsFolder: path.resolve(__dirname, '..', 'files'),
+  uploadsProfilePhotoFolder: 'profiles',
 
   multer: {
     storage: multer.diskStorage({

@@ -1,2 +1,12 @@
 node_modules
 .env
+build
+
+src/tmp/*
+!src/tmp/.gitkeep
+
+src/files/*
+!src/files/.gitkeep
+
+src/files/profiles*
+!src/files/profiles/.gitkeep

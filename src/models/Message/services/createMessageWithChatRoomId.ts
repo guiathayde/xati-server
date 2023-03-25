@@ -1,4 +1,4 @@
-import { DBClient } from '../../services/DBClient';
+import { DBClient } from '../../../services/DBClient';
 
 export async function createMessageWithChatRoomId(
   chatRoomId: string,

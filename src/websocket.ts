@@ -2,10 +2,13 @@ import { ChatRoom, User } from '@prisma/client';
 
 import { io } from './http';
 
-import { getChatRoomByUsersIds } from './controller/ChatRoom/getChatRoomByUsersIds';
-import { createChatRoomByUsersIds } from './controller/ChatRoom/createChatRoomByUsersIds';
-import { createMessageWithChatRoomId } from './controller/Message/createMessageWithChatRoomId';
-import { getChatRoomById } from './controller/ChatRoom/getChatRoomById';
+import { getChatRoomByUsersIds } from './models/ChatRoom/services/getChatRoomByUsersIds';
+import { setReadMessagesByChatIdAndUserId } from './models/Message/services/setReadMessagesByChatIdAndUserId';
+import { createChatRoomByUsersIds } from './models/ChatRoom/services/createChatRoomByUsersIds';
+import { createMessageWithChatRoomId } from './models/Message/services/createMessageWithChatRoomId';
+import { getChatRoomById } from './models/ChatRoom/services/getChatRoomById';
+import { getCountMessagesUnreadByUserAndRoomId } from './models/Message/services/getCountMessagesUnreadByUserAndRoomId';
+import { getUserById } from './models/Users/services/getUserById';
 
 type Room =
   | (ChatRoom & {
@@ -17,17 +20,29 @@ type Room =
     })
   | null;
 
-io.on('connect', (socket) => {
+io.on('connect', socket => {
   socket.on('startChat', async (data, callback) => {
     let room: Room = null;
+
     room = await getChatRoomByUsersIds([data.userToChatId, data.userLoggedId]);
+
+    if (room)
+      await setReadMessagesByChatIdAndUserId(room.id, data.userLoggedId);
+
     if (!room) {
       room = await createChatRoomByUsersIds([
         data.userToChatId,
         data.userLoggedId,
       ]);
 
-      io.to(data.userToChatId).emit('newChat', room);
+      const userToChat = await getUserById(data.userToChatId);
+
+      if (userToChat && userToChat.socketId)
+        io.to(userToChat.socketId).emit('newChat', {
+          ...room,
+          users: [userToChat],
+          totalMessagesUnread: 0,
+        });
     }
 
     socket.join(room.id);
@@ -35,11 +50,11 @@ io.on('connect', (socket) => {
     callback(room);
   });
 
-  socket.on('message', async (data) => {
+  socket.on('message', async data => {
     const message = await createMessageWithChatRoomId(
       data.chatRoomId,
       data.senderId,
-      data.content
+      data.content,
     );
 
     // Enviar a mensagem para outro usuário da sala
@@ -50,18 +65,26 @@ io.on('connect', (socket) => {
 
     if (room) {
       const receiverUser = room.users.find(
-        (user) => String(user.id) !== String(data.senderId)
-      );
-      const senderUser = room.users.find(
-        (user) => String(user.id) === String(data.senderId)
+        user => String(user.id) !== String(data.senderId),
       );
 
-      if (receiverUser && receiverUser.socketId)
-        io.to(receiverUser.socketId).emit('notification', {
-          newMessage: true,
-          chatRoomId: data.chatRoomId,
-          sender: senderUser,
+      if (receiverUser && receiverUser.socketId) {
+        const totalMessagesUnread = await getCountMessagesUnreadByUserAndRoomId(
+          data.chatRoomId,
+          receiverUser.id,
+        );
+
+        io.to(receiverUser.socketId).emit('updateChat', {
+          ...room,
+          totalMessagesUnread,
         });
+
+        // io.to(receiverUser.socketId).emit('notification', {
+        //   newMessage: true,
+        //   chatRoomId: data.chatRoomId,
+        //   sender: senderUser,
+        // });
+      }
     }
   });
 });

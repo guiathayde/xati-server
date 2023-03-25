@@ -3,10 +3,10 @@ import multer from 'multer';
 
 import { uploadConfig } from '../config/uploadFile';
 
-import { createOrUpdateUser } from '../controller/Users/createOrUpdate';
-import { uploadProfilePhoto } from '../controller/Users/uploadProfilePhoto';
-import { getUserById } from '../controller/Users/getUserById';
-import { getUserByPhoneNumber } from '../controller/Users/getUserByPhoneNumber';
+import { createOrUpdateUser } from '../models/Users/controllers/createOrUpdateUser';
+import { uploadProfilePhoto } from '../models/Users/controllers/uploadProfilePhoto';
+import { getUserById } from '../models/Users/controllers/getUserById';
+import { getUserByPhoneNumber } from '../models/Users/controllers/getUserByPhoneNumber';
 
 const usersRouter = Router();
 
@@ -16,7 +16,7 @@ usersRouter.post('/create-or-update', createOrUpdateUser);
 usersRouter.post(
   '/upload-profile-photo',
   upload.single('photo'),
-  uploadProfilePhoto
+  uploadProfilePhoto,
 );
 usersRouter.get('/phone/:phoneNumber', getUserByPhoneNumber);
 usersRouter.get('/:id', getUserById);

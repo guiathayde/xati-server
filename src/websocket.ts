@@ -28,8 +28,7 @@ io.on('connect', socket => {
 
     if (room)
       await setReadMessagesByChatIdAndUserId(room.id, data.userLoggedId);
-
-    if (!room) {
+    else {
       room = await createChatRoomByUsersIds([
         data.userToChatId,
         data.userLoggedId,
@@ -78,13 +77,15 @@ io.on('connect', socket => {
           ...room,
           totalMessagesUnread,
         });
-
-        // io.to(receiverUser.socketId).emit('notification', {
-        //   newMessage: true,
-        //   chatRoomId: data.chatRoomId,
-        //   sender: senderUser,
-        // });
       }
     }
+  });
+
+  socket.on('typing', async data => {
+    io.to(data.chatRoomId).emit('typing', {
+      senderId: data.senderId,
+      senderName: data.senderName,
+      content: data.content,
+    });
   });
 });

@@ -15,6 +15,9 @@ export async function getChatRoomByUsersIds(idUsers: string[]) {
     },
     include: {
       messages: {
+        orderBy: {
+          createdAt: 'asc',
+        },
         select: {
           id: true,
           content: true,

@@ -12,3 +12,5 @@ src/files/*
 
 src/files/profiles*
 !src/files/profiles/.gitkeep
+
+src/services/firebase/serviceAccountKey.json

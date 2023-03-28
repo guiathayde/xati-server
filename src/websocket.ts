@@ -2,6 +2,7 @@ import { ChatRoom, User } from '@prisma/client';
 
 import { io } from './http';
 
+import { updateIsOnlineById } from './models/Users/services/updateIsOnlineById';
 import { getChatRoomByUsersIds } from './models/ChatRoom/services/getChatRoomByUsersIds';
 import { setReadMessagesByChatIdAndUserId } from './models/Message/services/setReadMessagesByChatIdAndUserId';
 import { createChatRoomByUsersIds } from './models/ChatRoom/services/createChatRoomByUsersIds';
@@ -21,6 +22,15 @@ type Room =
   | null;
 
 io.on('connect', socket => {
+  socket.on('updateIsOnline', async data => {
+    const roomsIds = await updateIsOnlineById(data.userId, data.isOnline);
+
+    io.to(roomsIds).emit('userToChatStatus', {
+      userId: data.userId,
+      isOnline: data.isOnline,
+    });
+  });
+
   socket.on('startChat', async (data, callback) => {
     let room: Room = null;
 

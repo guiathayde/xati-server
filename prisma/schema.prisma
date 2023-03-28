@@ -18,6 +18,7 @@ model User {
   photoId     String?
   photoUrl    String?
   phoneNumber String  @unique
+  isOnline    Boolean @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

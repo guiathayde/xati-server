@@ -24,6 +24,7 @@ export async function getChatRoomByUsersIds(idUsers: string[]) {
           sender: true,
         },
       },
+      users: true,
     },
   });
 

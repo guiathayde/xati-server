@@ -20,6 +20,7 @@ export async function createChatRoomByUsersIds(idUsers: string[]) {
           sender: true,
         },
       },
+      users: true,
     },
   });
 

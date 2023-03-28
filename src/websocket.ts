@@ -84,7 +84,6 @@ io.on('connect', socket => {
   socket.on('typing', async data => {
     io.to(data.chatRoomId).emit('typing', {
       senderId: data.senderId,
-      senderName: data.senderName,
       content: data.content,
     });
   });

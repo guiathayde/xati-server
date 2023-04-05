@@ -10,6 +10,7 @@ import { createMessageWithChatRoomId } from './models/Message/services/createMes
 import { getChatRoomById } from './models/ChatRoom/services/getChatRoomById';
 import { getCountMessagesUnreadByUserAndRoomId } from './models/Message/services/getCountMessagesUnreadByUserAndRoomId';
 import { getUserById } from './models/Users/services/getUserById';
+import { sendNotification } from './services/firebase/sendNotification';
 
 type Room =
   | (ChatRoom & {
@@ -33,9 +34,7 @@ io.on('connect', socket => {
 
   socket.on('startChat', async (data, callback) => {
     let room: Room = null;
-
     room = await getChatRoomByUsersIds([data.userToChatId, data.userLoggedId]);
-
     if (room)
       await setReadMessagesByChatIdAndUserId(room.id, data.userLoggedId);
     else {
@@ -69,9 +68,8 @@ io.on('connect', socket => {
     // Enviar a mensagem para outro usuário da sala
     io.to(data.chatRoomId).emit('message', message);
 
-    // Enviar notificação para o usuário correto
+    // Atualizar a sala de chat
     const room = await getChatRoomById(data.chatRoomId);
-
     if (room) {
       const receiverUser = room.users.find(
         user => String(user.id) !== String(data.senderId),
@@ -87,6 +85,26 @@ io.on('connect', socket => {
           ...room,
           totalMessagesUnread,
         });
+      }
+
+      // Enviar notificação para o outro usuário da sala
+      // TODO - Verificar se o usuário que irá receber a notificação está no mesmo chat
+      const senderUser = room.users.find(
+        user => String(user.id) === String(data.senderId),
+      );
+      if (
+        senderUser &&
+        receiverUser &&
+        !receiverUser.isOnline &&
+        receiverUser.firebaseCloudMessagingToken
+      ) {
+        sendNotification(
+          data.senderId,
+          senderUser.photoUrl || '',
+          receiverUser.firebaseCloudMessagingToken,
+          `Nova mensagem de ${message.sender.name}`,
+          message.content,
+        );
       }
     }
   });

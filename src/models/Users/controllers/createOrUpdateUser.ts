@@ -5,7 +5,14 @@ import AppError from '../../../errors/AppError';
 import { createOrUpdateUser as createOrUpdateUserService } from '../services/createOrUpdateUser';
 
 export async function createOrUpdateUser(request: Request, response: Response) {
-  const { id, socketId, email, name, phoneNumber } = request.body;
+  const {
+    id,
+    socketId,
+    email,
+    name,
+    phoneNumber,
+    firebaseCloudMessagingToken,
+  } = request.body;
 
   if (!phoneNumber) {
     throw new AppError('Telefone vazio.', 403);
@@ -17,6 +24,7 @@ export async function createOrUpdateUser(request: Request, response: Response) {
     socketId,
     email,
     name,
+    firebaseCloudMessagingToken,
   );
 
   return response.json(user);

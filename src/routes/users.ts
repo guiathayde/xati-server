@@ -9,6 +9,7 @@ import { createOrUpdateUser } from '../models/Users/controllers/createOrUpdateUs
 import { uploadProfilePhoto } from '../models/Users/controllers/uploadProfilePhoto';
 import { getUserById } from '../models/Users/controllers/getUserById';
 import { getUserByPhoneNumber } from '../models/Users/controllers/getUserByPhoneNumber';
+import { updateFirebaseCloudMessagingToken } from '../models/Users/controllers/updateFirebaseCloudMessagingToken';
 
 const usersRouter = Router();
 
@@ -27,5 +28,6 @@ usersRouter.get(
   getUserByPhoneNumber,
 );
 usersRouter.get('/:id', ensureAuthenticated, getUserById);
+usersRouter.patch('/fcmtoken', updateFirebaseCloudMessagingToken);
 
 export default usersRouter;

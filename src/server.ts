@@ -1,9 +1,35 @@
 import 'reflect-metadata';
 import 'dotenv/config';
+import 'express-async-errors';
 
-import { server } from './http';
-import './websocket';
+import express, { NextFunction, Request, Response } from 'express';
+import cors from 'cors';
 
-server.listen(process.env.PORT, () => {
-  console.log('Server is running on port ' + process.env.PORT);
+import { AppError } from './errors/AppError';
+
+const app = express();
+
+app.use(cors());
+app.use(express.json());
+
+app.use(
+  (err: Error, request: Request, response: Response, next: NextFunction) => {
+    if (err instanceof AppError) {
+      return response.status(err.statusCode).json({
+        status: 'error',
+        message: err.message,
+      });
+    }
+
+    console.error(err);
+
+    return response.status(500).json({
+      status: 'error',
+      message: 'Internal server error',
+    });
+  }
+);
+
+app.listen(process.env.PORT, () => {
+  console.log(`Server is running on port ${process.env.PORT}`);
 });

@@ -1,13 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 
-import AppError from '../errors/AppError';
+import { AppError } from '../errors/AppError';
 
-import { Firebase } from '../services/firebase';
+import admin from '../services/firebase';
 
 export async function ensureAuthenticated(
   request: Request,
   response: Response,
-  next: NextFunction,
+  next: NextFunction
 ) {
   const authHeader = request.headers.authorization;
 
@@ -16,8 +16,6 @@ export async function ensureAuthenticated(
   const [, token] = authHeader.split(' ');
 
   try {
-    const admin = Firebase.getInstance().admin;
-
     const decodeValue = await admin.auth().verifyIdToken(token);
 
     if (!decodeValue) throw new AppError('Invalid JWT token', 401);
@@ -25,7 +23,7 @@ export async function ensureAuthenticated(
     const { uid } = decodeValue;
 
     request.user = {
-      id: uid,
+      uid,
     };
 
     return next();

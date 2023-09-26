@@ -1,13 +1,9 @@
 import { Router } from 'express';
 
-import usersRouter from './users';
-import chatRoomsRouter from './chatRoom';
-import messagesRouter from './messages';
+import notificationsRouter from './notifications';
 
 const routes = Router();
 
-routes.use('/users', usersRouter);
-routes.use('/chat-rooms', chatRoomsRouter);
-routes.use('/messages', messagesRouter);
+routes.use('/notifications', notificationsRouter);
 
 export default routes;

@@ -7,7 +7,7 @@
   "license": "MIT",
   "scripts": {
     "start": "node dist/server.js",
-    "dev": "tsx watch src/server.ts",
+    "dev": "FIREBASE_AUTH_EMULATOR_HOST='127.0.0.1:9099' FIRESTORE_EMULATOR_HOST='127.0.0.1:8080' FIREBASE_STORAGE_EMULATOR_HOST='127.0.0.1:9199' tsx watch src/server.ts",
     "build": "tsc"
   },
   "dependencies": {

@@ -17,7 +17,7 @@ export async function ensureAuthenticated(
 
   try {
     const decodeValue = await admin.auth().verifyIdToken(token);
-
+    
     if (!decodeValue) throw new AppError('Invalid JWT token', 401);
 
     const { uid } = decodeValue;
@@ -28,6 +28,7 @@ export async function ensureAuthenticated(
 
     return next();
   } catch (err) {
+    console.log(err);
     throw new AppError(`Invalid JWT token: ${JSON.stringify(err)}`, 401);
   }
 }
